@@ -126,6 +126,7 @@ void request(char* request)
     }
     (void)closedir(dir);
   }
+  print_http(extension, is_valid, file);
 }
 
 int get_extension_num(char* file){
@@ -145,4 +146,76 @@ else if (strcmp("gif", s) == 0)
   return 5;
 else
   return 1;
+}
+
+void print_http(int extension, int is_valid, FILE *file){
+  char* file_type;
+  switch (extension){
+    case 1:
+      file_type = "Content-Type: text/plain\r\n\0";
+      break;
+    case 2:
+      file_type = "Content-Type: image/jpg\r\n\0";
+      break;
+    case 3:
+      file_type = "Content-Type: image/jpeg\r\n\0";
+      break;
+    case 4:
+      file_type = "Content-Type: image/png\r\n\0";
+      break;
+    case 5:
+      file_type = "Content-Type: image/gif\r\n\0";
+      break;
+    case 0:
+    default:
+      file_type = "Content-Type: text/html\r\n\0";
+      break;
+  }
+  char* header = "HTTP/1.1 200 OK\rn\n\0";
+  char* not_found_header = "HTTP/1.1 404 Not Found\r\n\0";
+  char* not_found_error_html = "<html><body><b>Error 404!</b><br>File requested not found.</body></html>";
+  int length;
+  char* buff = NULL;
+  if (is_valid){
+    if (fseek(file, 0, SEEK_END) != 0){
+      fprintf(stderr, "Error using fseek.\n");
+    }
+    length = ftell(file);
+    buff = malloc(sizeof(char)*(length+1));
+    if (fseek(file, 0, SEEK_SET) != 0){
+      fprintf(stderr, "Error using fseek.\n");
+    }
+    fread(buff, sizeof(char), length, file);
+    buff[length] = '\0';
+  }
+
+  if (is_valid){
+    if (write(new_sock, header, strlen(header)) < 0){
+      fprintf(stderr, "Error writing header.\n");
+    }
+  }
+  else{
+    if (write(new_sock, not_found_header, strlen(not_found_header)) < 0){
+      fprintf(stderr, "Error writing header for file not found.\n");
+    }
+  }
+
+  if (write(new_sock, file_type, strlen(file_type)) < 0){
+    fprintf(stderr, "Error writing file extension.\n");
+  }
+  if (write(new_sock, "\r\n\0", strlen("\r\n\0")) < 0){
+    fprintf(stderr, "Error writing newline and carriage return.\n");
+  }
+  if (is_valid){
+    if (write(new_sock, buff, length) < 0){
+      fprintf(stderr, "Error writing buffer.\n");
+    }
+  }
+  else{
+    if (write(new_sock, not_found_error_html, strlen(not_found_error_html)) < 0){
+      fprintf(stderr, "Error writing 404 error in HTML.\n");
+    }
+  }
+
+  free(buff);
 }
