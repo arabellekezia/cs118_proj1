@@ -61,6 +61,7 @@ int main(void){
       exit(1);
     }
     else if (child == 0){
+      request(buff);
 	    close(new_sock);
 	    exit(0);
     }
@@ -69,4 +70,79 @@ int main(void){
       waitpid(-1, NULL, WNOHANG);
     }
   }
+}
+
+void request(char* request)
+{
+  printf("%s", request);
+  char* token = strtok(request, "\r\n");
+  // count how many words and store in get
+  char* get_words[30];
+  char* split_words = strtok(token, " ");
+  get_words[0] = split_words;
+  int words = 1;
+  while (split_words != NULL)
+  {
+      get_words[words-1] = split_words;
+      split_words = strtok(NULL, " ");
+      words++;
+  }
+
+  int file_len = strlen(get_words[1]);
+  char name[2048];
+  int name_ctr = 0;
+  for (int i = 1; i < file_len; i++){
+    if (((i+2) < file_len) && (get_words[1][i] == '%' && get_words[1][i+1] == '2' && get_words[1][i+2] == '0'))
+    {
+      name[name_ctr] = ' ';
+      i += 2;
+      name_ctr++;
+    }
+    else{
+      name[name_ctr] = get_words[1][i];
+      name_ctr++;
+    }
+  }
+  name[name_ctr] = '\0';
+
+  DIR *dir;
+  dir = opendir("./");
+  FILE *file;
+  struct dirent *file_dir;
+  int is_valid = 0;
+  int extension = -1;
+  if (dir != NULL){
+    while ((file_dir = readdir(dir))){
+      if (strcasecmp(file_dir->d_name, name) == 0){
+        file = fopen(file_dir->d_name, "r");
+        extension = get_extension_num(file_dir->d_name);
+        if (file == NULL){
+          fprintf(stderr, "Error opening file.\n");
+        }
+        else{
+          is_valid = 1;
+        }
+      }
+    }
+    (void)closedir(dir);
+  }
+}
+
+int get_extension_num(char* file){
+char* s = strtok(file, ".");
+s = strtok(NULL, ".");
+if (s == NULL)
+  return 1;
+if ((strcmp("html", s) == 0) ||(strcmp("htm", s) == 0))
+  return 0;
+else if (strcmp("png", s) == 0)
+  return 2;
+else if (strcmp("jpg", s) == 0)
+  return 3;
+else if (strcmp("jpeg", s) == 0)
+  return 4;
+else if (strcmp("gif", s) == 0)
+  return 5;
+else
+  return 1;
 }
