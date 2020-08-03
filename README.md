@@ -1,6 +1,3 @@
-## Name: Arabelle Siahaan
-## ID: 604928106
-
 The design of my server starts in the main function, where it sets up a connection between the client and server 
 using sockets. To do this, I used the code that was provided online in the GeeksforGeeks website (https://www.geeksforgeeks.org/socket-programming-cc/), as well as the code in Beej's Guide to Network Programming to set up
 a server. Then, I added my own implementation to dump the HTTP request in a separate helper function called 
