@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog Posts by <%= posts[0].username %></title>
+
+  </head>
+    <div>
+      <h1>Blog Posts by <%= posts[0].username %></h1>
+    </div>
+  <body>
+    <% for (let post of posts) { %>
+        <div><%- post.title %></div>
+        <div><%- post.body %></div>
+        <div><p><span style="font-size:0.7em">Post created: <%= post.created %><br>Post last modified: <%= post.modified %></span></p></div>
+        <hr>
+    <% } %>
+  </body>
+  <% if (next != '') {%>
+    <div><a id='next_link' href='<%=next%>' class='button'>Next</a></div>
+  <% } %>
+</html>

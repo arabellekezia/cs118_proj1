@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login Page</title>
+  </head>
+  <body>
+    <h1>Login Page</h1>
+    <form action="/login" method="POST">
+      <input type="hidden" name="redirect" value="<%= redirect %>"/>
+      <p><input id="username" name="username" type="text" placeholder="Username"></p>
+      <p><input id="password" name="password" type="password" placeholder="Password"></p>
+      <button class="button" type="submit">Log In</button>
+    </form>
+  </body>
+</html>

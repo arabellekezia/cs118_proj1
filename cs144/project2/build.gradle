@@ -1,0 +1,9 @@
+apply plugin: 'war'
+
+dependencies {
+    compileOnly fileTree(include: ['*.jar'], dir: "${System.env.CATALINA_HOME}/lib")
+}
+
+war {
+    baseName = 'editor'
+}

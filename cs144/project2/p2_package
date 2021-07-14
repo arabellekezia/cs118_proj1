@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+ZIP_FILE="project2.zip"
+REQUIRED_FILES="deploy.sh build.gradle create.sql src/main/webapp/WEB-INF/web.xml"
+
+CUR_DIR=$(pwd)
+SRC_DIR=${CUR_DIR}
+
+#error function
+function error_exit()
+{
+   echo -e "ERROR: $1" 1>&2
+   rm -rf ${TMP_DIR}
+   exit 1
+}
+
+# make sure running in container
+if [ `whoami` != "cs144" ]; then
+    error_exit "You need to run this script within the container"
+fi
+
+# if the source directory is passed as parameter, use it
+if [ $# -eq 1 ]; then
+    SRC_DIR=$1
+fi
+
+# change to source directory
+cd ${SRC_DIR}
+
+# check the existence of the required files
+for FILE in ${REQUIRED_FILES}
+do
+    if [ ! -f ${FILE} ]; then
+        echo "ERROR: Cannot find ${FILE} in ${DIR}" 1>&2
+        exit 1
+    fi
+done
+
+# Make sure there is at least one java file and one jsp file
+FILE_COUNT="$( find src/main/java/ -name '*.java' -print | wc -l )"
+if [ "$FILE_COUNT" -eq 0 ]; then
+    error_exit "Cannot find any .java source files in the directory."
+fi 
+FILE_COUNT="$( find src/main/webapp/ -name '*.jsp' -print | wc -l )"
+if [ "$FILE_COUNT" -eq 0 ]; then
+    error_exit "Cannot find any .jsp source files in the directory."
+fi 
+
+# remove existing zip file if any
+if [ -f ${CUR_DIR}/${ZIP_FILE} ]; then
+    rm -f ${CUR_DIR}/${ZIP_FILE}
+fi
+
+# create the zip file
+zip -r ${CUR_DIR}/${ZIP_FILE} . -x p2_package .DS_Store Thumbs.db \*.class \*.war .gradle/\* build/\* \*/.DS_Store \*/Thumbs.db .git/\* @
+if [ $? -ne 0 ]; then
+    error_exit "Create ${ZIP_FILE} failed, check for error messages in console."
+fi
+
+echo "[SUCCESS] Created '${CUR_DIR}/${ZIP_FILE}'"
+
+exit 0

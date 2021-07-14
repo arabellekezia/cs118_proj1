@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog Post <%=post.postid%></title>
+  </head>
+  <header>
+      <%-post.title%>
+  </header>
+  <body>
+    <div><p><span style="font-size:0.7em">Post created: <%= post.created %><br>Post last modified: <%= post.modified %></span></p></div>
+    <div><%-post.body %></div>
+  </body>
+</html>
